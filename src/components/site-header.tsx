@@ -32,10 +32,16 @@ export function SiteHeader() {
     };
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => refresh(session));
     supabase.auth.getSession().then(({ data }) => refresh(data.session));
-    const ch = supabase.channel("notif-bell").on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
-      supabase.auth.getSession().then(({ data }) => refresh(data.session));
-    }).subscribe();
-    return () => sub.subscription.unsubscribe();
+    const ch = supabase
+      .channel(`notif-bell-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
+        supabase.auth.getSession().then(({ data }) => refresh(data.session));
+      })
+      .subscribe();
+    return () => {
+      sub.subscription.unsubscribe();
+      supabase.removeChannel(ch);
+    };
   }, []);
 
   const langs: { code: Lang; label: string }[] = [
