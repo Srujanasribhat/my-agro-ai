@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Leaf, Globe2, LogOut } from "lucide-react";
+import { Leaf, Globe2, LogOut, Bell, MessageSquare, CloudRain, ShieldCheck, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useT, type Lang } from "@/lib/i18n";
@@ -15,10 +16,25 @@ export function SiteHeader() {
   const { t, lang, setLang } = useT();
   const navigate = useNavigate();
   const [authed, setAuthed] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setAuthed(!!session));
-    supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session));
+    const refresh = async (session: any) => {
+      setAuthed(!!session);
+      if (!session) { setUnread(0); setIsAdmin(false); return; }
+      const [{ count }, { data: roles }] = await Promise.all([
+        supabase.from("notifications").select("*", { count: "exact", head: true }).eq("read", false),
+        supabase.from("user_roles").select("role").eq("user_id", session.user.id).eq("role", "admin"),
+      ]);
+      setUnread(count ?? 0);
+      setIsAdmin((roles ?? []).length > 0);
+    };
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => refresh(session));
+    supabase.auth.getSession().then(({ data }) => refresh(data.session));
+    const ch = supabase.channel("notif-bell").on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
+      supabase.auth.getSession().then(({ data }) => refresh(data.session));
+    }).subscribe();
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -44,15 +60,50 @@ export function SiteHeader() {
           <Link to="/detect" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             {t.nav.detect}
           </Link>
+          <Link to="/assistant" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            {t.nav.assistant}
+          </Link>
+          <Link to="/weather" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            {t.nav.weather}
+          </Link>
           <Link to="/dashboard" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             {t.nav.dashboard}
           </Link>
           <Link to="/tips" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             {t.nav.tips}
           </Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+              {t.nav.admin}
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
+          {authed && (
+            <Link to="/alerts" className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-secondary hover:text-foreground">
+              <Bell className="h-4 w-4" />
+              {unread > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{unread > 9 ? "9+" : unread}</span>
+              )}
+            </Link>
+          )}
+
+          {/* Mobile menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden"><Menu className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild><Link to="/detect">{t.nav.detect}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/assistant"><MessageSquare className="mr-2 h-4 w-4" />{t.nav.assistant}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/weather"><CloudRain className="mr-2 h-4 w-4" />{t.nav.weather}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/dashboard">{t.nav.dashboard}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/tips">{t.nav.tips}</Link></DropdownMenuItem>
+              {isAdmin && <><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />{t.nav.admin}</Link></DropdownMenuItem></>}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-1.5">

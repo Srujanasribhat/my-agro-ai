@@ -2,7 +2,7 @@ export type Lang = "en" | "hi" | "ta";
 
 export const translations = {
   en: {
-    nav: { detect: "Detect", dashboard: "Dashboard", tips: "Tips", login: "Sign in", logout: "Sign out" },
+    nav: { detect: "Detect", dashboard: "Dashboard", tips: "Tips", assistant: "Assistant", weather: "Weather", alerts: "Alerts", admin: "Admin", login: "Sign in", logout: "Sign out" },
     hero: {
       tag: "AI for farmers",
       title: "Spot crop disease before it spreads.",
@@ -45,9 +45,37 @@ export const translations = {
       recent: "Recent scans", trend: "Scans over time", breakdown: "Disease breakdown", empty: "No scans yet — analyze a leaf to begin.",
     },
     tips: { title: "Farmer best practices" },
+    assistant: {
+      title: "AI Farm Assistant",
+      sub: "Ask anything about your crops, diseases, treatments, or weather.",
+      placeholder: "e.g. Why are my tomato leaves turning yellow?",
+      send: "Send",
+      voice: "Speak",
+      stop: "Stop",
+      empty: "Hi! I'm your AgroAI assistant. Ask me anything about your crops.",
+      clear: "Clear chat",
+      thinking: "Thinking…",
+    },
+    weather: {
+      title: "Weather & disease risk",
+      sub: "5-day forecast with crop disease alerts based on temperature, humidity, and rainfall.",
+      city: "City or village",
+      gps: "Use my location",
+      check: "Check forecast",
+      forecast: "5-day forecast",
+      risks: "Disease risk alerts",
+      noRisk: "No major risks detected",
+    },
+    alerts: {
+      title: "Alerts",
+      empty: "No alerts yet — we'll notify you about disease and weather risks here.",
+      markAll: "Mark all read",
+      clear: "Clear all",
+    },
+    admin: { title: "Admin dashboard", forbidden: "Admin access required.", users: "Users", scans: "Total scans", topIssues: "Top diseases (all users)", recent: "Recent scans" },
   },
   hi: {
-    nav: { detect: "जाँच", dashboard: "डैशबोर्ड", tips: "सुझाव", login: "साइन इन", logout: "साइन आउट" },
+    nav: { detect: "जाँच", dashboard: "डैशबोर्ड", tips: "सुझाव", assistant: "सहायक", weather: "मौसम", alerts: "अलर्ट", admin: "एडमिन", login: "साइन इन", logout: "साइन आउट" },
     hero: {
       tag: "किसानों के लिए AI",
       title: "फैलने से पहले रोग पहचानें।",
@@ -90,9 +118,13 @@ export const translations = {
       recent: "हाल की जाँच", trend: "समय के साथ", breakdown: "रोग वितरण", empty: "अभी कोई जाँच नहीं।",
     },
     tips: { title: "किसान सर्वोत्तम अभ्यास" },
+    assistant: { title: "AI कृषि सहायक", sub: "फसल, रोग, उपचार के बारे में पूछें।", placeholder: "उदा. मेरी पत्तियाँ पीली क्यों हो रही हैं?", send: "भेजें", voice: "बोलें", stop: "रोकें", empty: "नमस्ते! मैं आपका AgroAI सहायक हूँ।", clear: "चैट साफ़", thinking: "सोच रहा हूँ…" },
+    weather: { title: "मौसम और रोग जोखिम", sub: "5-दिन का पूर्वानुमान।", city: "शहर/गाँव", gps: "मेरा स्थान", check: "जाँचें", forecast: "5-दिन पूर्वानुमान", risks: "रोग चेतावनी", noRisk: "कोई जोखिम नहीं" },
+    alerts: { title: "अलर्ट", empty: "अभी कोई अलर्ट नहीं।", markAll: "सब पढ़ा हुआ", clear: "सब साफ़" },
+    admin: { title: "एडमिन डैशबोर्ड", forbidden: "एडमिन एक्सेस आवश्यक।", users: "उपयोगकर्ता", scans: "कुल जाँच", topIssues: "मुख्य रोग", recent: "हाल की जाँच" },
   },
   ta: {
-    nav: { detect: "சோதி", dashboard: "டாஷ்போர்டு", tips: "ஆலோசனை", login: "உள்நுழை", logout: "வெளியேறு" },
+    nav: { detect: "சோதி", dashboard: "டாஷ்போர்டு", tips: "ஆலோசனை", assistant: "உதவியாளர்", weather: "வானிலை", alerts: "எச்சரிக்கை", admin: "நிர்வாகி", login: "உள்நுழை", logout: "வெளியேறு" },
     hero: {
       tag: "விவசாயிகளுக்கான AI",
       title: "நோய் பரவுவதற்கு முன் கண்டறி.",
@@ -135,6 +167,10 @@ export const translations = {
       recent: "சமீபத்திய சோதனைகள்", trend: "காலப்போக்கில்", breakdown: "நோய் பகுப்பு", empty: "இன்னும் சோதனை இல்லை.",
     },
     tips: { title: "விவசாய சிறந்த நடைமுறைகள்" },
+    assistant: { title: "AI விவசாய உதவியாளர்", sub: "பயிர், நோய் பற்றி கேளுங்கள்.", placeholder: "உதா. ஏன் இலைகள் மஞ்சளாகின்றன?", send: "அனுப்பு", voice: "பேசு", stop: "நிறுத்து", empty: "வணக்கம்! நான் உங்கள் AgroAI உதவியாளர்.", clear: "அரட்டையை அழி", thinking: "சிந்திக்கிறேன்…" },
+    weather: { title: "வானிலை மற்றும் நோய் ஆபத்து", sub: "5-நாள் முன்னறிவிப்பு.", city: "நகரம்/கிராமம்", gps: "என் இடம்", check: "சோதி", forecast: "5-நாள் முன்னறிவிப்பு", risks: "நோய் எச்சரிக்கை", noRisk: "ஆபத்து இல்லை" },
+    alerts: { title: "எச்சரிக்கைகள்", empty: "எச்சரிக்கை இல்லை.", markAll: "எல்லாம் படித்தது", clear: "அழி" },
+    admin: { title: "நிர்வாக டாஷ்போர்டு", forbidden: "நிர்வாகி அணுகல் தேவை.", users: "பயனர்கள்", scans: "மொத்த சோதனைகள்", topIssues: "முக்கிய நோய்கள்", recent: "சமீபத்திய" },
   },
 } as const;
 

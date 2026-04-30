@@ -130,7 +130,20 @@ function DetectPage() {
     });
     setSaving(false);
     if (error) toast.error(error.message);
-    else toast.success(t.result.saved);
+    else {
+      toast.success(t.result.saved);
+      // Auto-create alert for diseased crops
+      if (!result.is_healthy) {
+        const sev = result.severity === "severe" ? "critical" : result.severity === "moderate" ? "warning" : "info";
+        await supabase.from("notifications").insert({
+          user_id: session.user.id,
+          kind: "disease",
+          severity: sev,
+          title: `${result.plant}: ${result.disease}`,
+          body: `${Math.round(result.confidence)}% confidence — ${result.severity ?? "detected"}. Tap to review treatment.`,
+        });
+      }
+    }
   };
 
   const reset = () => { setImageDataUrl(null); setResult(null); };

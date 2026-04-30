@@ -9,12 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as TipsRouteImport } from './routes/tips'
 import { Route as DetectRouteImport } from './routes/detect'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
+const WeatherRoute = WeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TipsRoute = TipsRouteImport.update({
   id: '/tips',
   path: '/tips',
@@ -35,6 +44,21 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,44 +67,95 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/alerts': typeof AlertsRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
   '/tips': typeof TipsRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/alerts': typeof AlertsRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
   '/tips': typeof TipsRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/alerts': typeof AlertsRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
   '/tips': typeof TipsRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/detect' | '/tips'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/alerts'
+    | '/assistant'
+    | '/auth'
+    | '/dashboard'
+    | '/detect'
+    | '/tips'
+    | '/weather'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/detect' | '/tips'
-  id: '__root__' | '/' | '/auth' | '/dashboard' | '/detect' | '/tips'
+  to:
+    | '/'
+    | '/admin'
+    | '/alerts'
+    | '/assistant'
+    | '/auth'
+    | '/dashboard'
+    | '/detect'
+    | '/tips'
+    | '/weather'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/alerts'
+    | '/assistant'
+    | '/auth'
+    | '/dashboard'
+    | '/detect'
+    | '/tips'
+    | '/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AlertsRoute: typeof AlertsRoute
+  AssistantRoute: typeof AssistantRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   DetectRoute: typeof DetectRoute
   TipsRoute: typeof TipsRoute
+  WeatherRoute: typeof WeatherRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/weather': {
+      id: '/weather'
+      path: '/weather'
+      fullPath: '/weather'
+      preLoaderRoute: typeof WeatherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tips': {
       id: '/tips'
       path: '/tips'
@@ -109,6 +184,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,10 +217,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AlertsRoute: AlertsRoute,
+  AssistantRoute: AssistantRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   DetectRoute: DetectRoute,
   TipsRoute: TipsRoute,
+  WeatherRoute: WeatherRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
