@@ -34,11 +34,15 @@ export const Route = createRootRoute({
       { name: "description", content: "Detect plant diseases instantly with AI. Upload a leaf photo and get diagnosis, treatment, and prevention tips for your crops." },
       { name: "author", content: "AgroAI" },
       { property: "og:title", content: "AgroAI – Smart Plant Disease Detection" },
-      { property: "og:description", content: "AI-powered crop diagnosis for farmers. Upload a leaf, get instant results." },
+      { property: "og:description", content: "Detect plant diseases instantly with AI. Upload a leaf photo and get diagnosis, treatment, and prevention tips for your crops." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "theme-color", content: "#3d8b40" },
+      { name: "twitter:title", content: "AgroAI – Smart Plant Disease Detection" },
+      { name: "twitter:description", content: "Detect plant diseases instantly with AI. Upload a leaf photo and get diagnosis, treatment, and prevention tips for your crops." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3c0a8b34-bcde-4316-8cf7-7eef4d070eef" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3c0a8b34-bcde-4316-8cf7-7eef4d070eef" },
     ],
     links: [
       {
