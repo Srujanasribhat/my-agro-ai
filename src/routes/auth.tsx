@@ -19,19 +19,30 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session) navigate({ to: "/dashboard" });
     });
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (data.session) navigate({ to: "/dashboard" });
+        else setCheckingSession(false);
+      })
+      .catch(() => setCheckingSession(false));
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    if (loading) return;
+    if (!email.trim() || !password) {
+      toast.error("Please enter your email and password.");
+      return;
+    }
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -57,6 +68,14 @@ function AuthPage() {
     }
   };
 
+  if (checkingSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ background: "var(--gradient-soft)" }}>
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4" style={{ background: "var(--gradient-soft)" }}>
       <div className="w-full max-w-md">
@@ -73,20 +92,20 @@ function AuthPage() {
             {mode === "signin" ? "Sign in to track your crop health." : "Start diagnosing your crops today."}
           </p>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <form onSubmit={submit} method="post" action="#" className="mt-6 space-y-4">
             {mode === "signup" && (
               <div className="space-y-1.5">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+                <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
               </div>
             )}
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@farm.com" />
+              <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@farm.com" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              <Input id="password" type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
             <Button type="submit" className="h-11 w-full rounded-xl" disabled={loading}>
               {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
