@@ -46,12 +46,22 @@ export const getWeatherRisk = createServerFn({ method: "POST" })
 
     try {
       let lat = data.latitude, lon = data.longitude, locName = "";
-      if (!lat || !lon) {
+      if (lat === undefined || lon === undefined) {
         const geo = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(data.city!)}&limit=1&appid=${apiKey}`);
         const arr = await geo.json();
         if (!Array.isArray(arr) || arr.length === 0) return { ok: false as const, error: "City not found" };
         lat = arr[0].lat; lon = arr[0].lon;
         locName = `${arr[0].name}${arr[0].country ? ", " + arr[0].country : ""}`;
+      } else {
+        // Reverse geocode for a friendly location name
+        try {
+          const rev = await fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`);
+          const arr = await rev.json();
+          if (Array.isArray(arr) && arr.length > 0) {
+            const a = arr[0];
+            locName = `${a.name}${a.state ? ", " + a.state : ""}${a.country ? ", " + a.country : ""}`;
+          }
+        } catch { /* non-fatal */ }
       }
 
       // 5-day / 3-hour forecast (free tier)
