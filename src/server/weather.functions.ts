@@ -39,54 +39,47 @@ function analyzeRisks(daily: { temp: number; humidity: number; rain: number; win
 export const getWeatherRisk = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
-    const apiKey = process.env.OPENWEATHER_API_KEY;
-    if (!apiKey) return { ok: false as const, error: "Weather API not configured" };
-
     try {
       let lat = data.latitude, lon = data.longitude, locName = "";
+
+      // Geocode city → coords using Open-Meteo (no API key required)
       if (lat === undefined || lon === undefined) {
-        const geo = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(data.city!)}&limit=1&appid=${apiKey}`);
-        const arr = await geo.json();
-        if (!Array.isArray(arr) || arr.length === 0) return { ok: false as const, error: "City not found" };
-        lat = arr[0].lat; lon = arr[0].lon;
-        locName = `${arr[0].name}${arr[0].country ? ", " + arr[0].country : ""}`;
+        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(data.city!)}&count=1&language=en&format=json`);
+        if (!geoRes.ok) return { ok: false as const, error: `Geocoding failed (${geoRes.status})` };
+        const geo = await geoRes.json();
+        const r = geo?.results?.[0];
+        if (!r) return { ok: false as const, error: "City not found" };
+        lat = r.latitude; lon = r.longitude;
+        locName = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
       } else {
-        // Reverse geocode for a friendly location name
+        // Reverse geocode for a friendly name (best-effort)
         try {
-          const rev = await fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`);
-          const arr = await rev.json();
-          if (Array.isArray(arr) && arr.length > 0) {
-            const a = arr[0];
-            locName = `${a.name}${a.state ? ", " + a.state : ""}${a.country ? ", " + a.country : ""}`;
+          const rev = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=en&format=json`);
+          if (rev.ok) {
+            const j = await rev.json();
+            const r = j?.results?.[0];
+            if (r) locName = [r.name, r.admin1, r.country].filter(Boolean).join(", ");
           }
         } catch { /* non-fatal */ }
+        if (!locName) locName = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
       }
 
-      // 5-day / 3-hour forecast (free tier)
-      const fr = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
+      // Forecast: daily aggregates for 5 days
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,temperature_2m_mean,relative_humidity_2m_mean,precipitation_sum,wind_speed_10m_max&forecast_days=5&timezone=auto`;
+      const fr = await fetch(url);
       if (!fr.ok) return { ok: false as const, error: `Weather fetch failed (${fr.status})` };
-      const forecast = await fr.json();
-      if (!locName) locName = `${forecast.city?.name ?? ""}${forecast.city?.country ? ", " + forecast.city.country : ""}`;
+      const f = await fr.json();
+      const d = f.daily;
+      if (!d || !Array.isArray(d.time)) return { ok: false as const, error: "No forecast data" };
 
-      // Group by date
-      const byDay = new Map<string, { temps: number[]; hums: number[]; rains: number[]; winds: number[] }>();
-      for (const item of forecast.list) {
-        const day = item.dt_txt.slice(0, 10);
-        if (!byDay.has(day)) byDay.set(day, { temps: [], hums: [], rains: [], winds: [] });
-        const b = byDay.get(day)!;
-        b.temps.push(item.main.temp);
-        b.hums.push(item.main.humidity);
-        b.rains.push(item.rain?.["3h"] ?? 0);
-        b.winds.push(item.wind?.speed ?? 0);
-      }
-      const daily = [...byDay.entries()].map(([date, b]) => ({
+      const daily = d.time.map((date: string, i: number) => ({
         date,
-        temp: b.temps.reduce((a, c) => a + c, 0) / b.temps.length,
-        tempMin: Math.min(...b.temps),
-        tempMax: Math.max(...b.temps),
-        humidity: b.hums.reduce((a, c) => a + c, 0) / b.hums.length,
-        rain: b.rains.reduce((a, c) => a + c, 0),
-        wind: b.winds.reduce((a, c) => a + c, 0) / b.winds.length,
+        temp: d.temperature_2m_mean?.[i] ?? ((d.temperature_2m_max[i] + d.temperature_2m_min[i]) / 2),
+        tempMin: d.temperature_2m_min[i],
+        tempMax: d.temperature_2m_max[i],
+        humidity: d.relative_humidity_2m_mean?.[i] ?? 60,
+        rain: d.precipitation_sum?.[i] ?? 0,
+        wind: (d.wind_speed_10m_max?.[i] ?? 0) / 3.6, // km/h → m/s
       }));
 
       const risks = analyzeRisks(daily);
