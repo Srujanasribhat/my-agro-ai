@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   latitude: z.number().min(-90).max(90).optional(),
@@ -38,7 +37,6 @@ function analyzeRisks(daily: { temp: number; humidity: number; rain: number; win
 }
 
 export const getWeatherRisk = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
     const apiKey = process.env.OPENWEATHER_API_KEY;
