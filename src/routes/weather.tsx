@@ -56,11 +56,28 @@ function WeatherPage() {
   }
 
   const useGps = () => {
-    if (!navigator.geolocation) { toast.error("GPS not available"); return; }
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      toast.error("GPS not supported by this browser");
+      return;
+    }
+    if (!window.isSecureContext) {
+      toast.error("Location requires HTTPS. Enter a city instead.");
+      return;
+    }
+    toast.info("Requesting location…");
     navigator.geolocation.getCurrentPosition(
-      (p) => run(undefined, p.coords.latitude, p.coords.longitude),
-      () => toast.error("Could not get location"),
-      { timeout: 8000 }
+      (p) => {
+        run(undefined, p.coords.latitude, p.coords.longitude);
+      },
+      (err) => {
+        const msg =
+          err.code === err.PERMISSION_DENIED ? "Location permission denied. Allow it in your browser settings." :
+          err.code === err.POSITION_UNAVAILABLE ? "Location unavailable. Try entering your city." :
+          err.code === err.TIMEOUT ? "Location request timed out. Try again." :
+          "Could not get your location.";
+        toast.error(msg);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     );
   };
 
