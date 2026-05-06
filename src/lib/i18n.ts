@@ -251,5 +251,8 @@ export function useT() {
   const [lang, setLangState] = useState<Lang>("en");
   useEffect(() => { setLangState(getLang()); }, []);
   const change = (l: Lang) => { setLang(l); setLangState(l); };
-  return { t: translations[lang], lang, setLang: change };
+  // Languages without a full UI translation fall back to English UI strings.
+  // The AI assistant still replies in the selected language.
+  const t = (translations as any)[lang] ?? translations.en;
+  return { t, lang, setLang: change };
 }
