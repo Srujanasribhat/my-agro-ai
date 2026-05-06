@@ -16,7 +16,7 @@ export const Route = createFileRoute("/assistant")({
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
-const langCode = { en: "en-US", hi: "hi-IN", ta: "ta-IN" } as const;
+const langCode = { en: "en-US", hi: "hi-IN", ta: "ta-IN", kn: "kn-IN" } as const;
 
 function AssistantPage() {
   const { t, lang } = useT();
