@@ -3,10 +3,22 @@ import { z } from "zod";
 
 const InputSchema = z.object({
   imageDataUrl: z.string().min(50).max(8_000_000),
-  language: z.enum(["en", "hi", "ta"]).default("en"),
+  language: z.enum(["en", "hi", "ta", "kn", "te", "mr", "bn", "gu", "pa", "ml", "or"]).default("en"),
 });
 
-const langName = { en: "English", hi: "Hindi (हिन्दी)", ta: "Tamil (தமிழ்)" } as const;
+const langName: Record<string, string> = {
+  en: "English",
+  hi: "Hindi (हिन्दी)",
+  ta: "Tamil (தமிழ்)",
+  kn: "Kannada (ಕನ್ನಡ)",
+  te: "Telugu (తెలుగు)",
+  mr: "Marathi (मराठी)",
+  bn: "Bengali (বাংলা)",
+  gu: "Gujarati (ગુજરાતી)",
+  pa: "Punjabi (ਪੰਜਾਬੀ)",
+  ml: "Malayalam (മലയാളം)",
+  or: "Odia (ଓଡ଼ିଆ)",
+};
 
 export const predictDisease = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
