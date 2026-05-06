@@ -1,4 +1,18 @@
-export type Lang = "en" | "hi" | "ta" | "kn";
+export type Lang = "en" | "hi" | "ta" | "kn" | "te" | "mr" | "bn" | "gu" | "pa" | "ml" | "or";
+
+export const LANG_LABELS: Record<Lang, string> = {
+  en: "English",
+  hi: "हिन्दी",
+  ta: "தமிழ்",
+  kn: "ಕನ್ನಡ",
+  te: "తెలుగు",
+  mr: "मराठी",
+  bn: "বাংলা",
+  gu: "ગુજરાતી",
+  pa: "ਪੰਜਾਬੀ",
+  ml: "മലയാളം",
+  or: "ଓଡ଼ିଆ",
+};
 
 export const translations = {
   en: {
