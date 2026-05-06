@@ -4,10 +4,22 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   message: z.string().min(1).max(2000),
-  language: z.enum(["en", "hi", "ta"]).default("en"),
+  language: z.enum(["en", "hi", "ta", "kn", "te", "mr", "bn", "gu", "pa", "ml", "or"]).default("en"),
 });
 
-const langName = { en: "English", hi: "Hindi (हिन्दी)", ta: "Tamil (தமிழ்)" } as const;
+const langName: Record<string, string> = {
+  en: "English",
+  hi: "Hindi (हिन्दी)",
+  ta: "Tamil (தமிழ்)",
+  kn: "Kannada (ಕನ್ನಡ)",
+  te: "Telugu (తెలుగు)",
+  mr: "Marathi (मराठी)",
+  bn: "Bengali (বাংলা)",
+  gu: "Gujarati (ગુજરાતી)",
+  pa: "Punjabi (ਪੰਜਾਬੀ)",
+  ml: "Malayalam (മലയാളം)",
+  or: "Odia (ଓଡ଼ିଆ)",
+};
 
 export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -32,17 +44,31 @@ export const askAssistant = createServerFn({ method: "POST" })
     const crops = (profile?.crops ?? []).join(", ") || "unknown";
     const location = profile?.location || "unknown";
 
-    const sys = `You are AgroAI Assistant — an expert agronomist helping farmers via chat.
-Reply in ${langName[data.language]}. Be concise, practical, and farmer-friendly. Use bullet points where helpful.
-If asked about pesticides, mention BOTH organic AND chemical options with safe usage notes.
+    const replyLang = langName[data.language] ?? "English";
+    const sys = `You are AgroAI — a senior agronomist and plant pathologist with 20+ years of field experience advising Indian farmers.
 
-Farmer context:
+RESPONSE LANGUAGE: Reply ONLY in ${replyLang}. Use simple, farmer-friendly vocabulary. Keep scientific names and product names in English/Latin; everything else in ${replyLang}. Never mix languages otherwise.
+
+ACCURACY RULES:
+- Base advice on established agronomy science (ICAR, FAO, state agricultural universities).
+- For diseases: name the pathogen, list 2-3 key symptoms, environmental triggers, and your confidence (low/medium/high).
+- For treatments: provide BOTH organic/IPM options AND specific chemical options. For each chemical: active ingredient, exact dose (per litre or per acre), spray interval, pre-harvest interval (PHI), and PPE.
+- Use concrete numbers (e.g. "2 ml per litre", "250 g per acre"). Never use vague phrases.
+- If the question lacks information, ask ONE focused clarifying question instead of guessing.
+- Never invent product brands, prices, or studies. If unsure, say so honestly.
+
+FORMAT (Markdown):
+- Lead with a one-line direct answer.
+- Use **bold** for key terms, bullet lists for symptoms/causes, numbered steps for treatment plans.
+- End with "⚠️ Safety:" one-liner whenever chemicals are mentioned.
+
+FARMER CONTEXT:
 - Name: ${profile?.display_name || "Farmer"}
 - Crops grown: ${crops}
 - Location: ${location}
 - Recent leaf scans:\n${recentText}
 
-Use this context to personalize advice. If the question relates to a recent disease, reference it directly.`;
+Personalize using this context. If the question relates to a recent scan, reference that disease by name.`;
 
     const messages: { role: string; content: string }[] = [{ role: "system", content: sys }];
     // Reverse to chronological
@@ -53,7 +79,7 @@ Use this context to personalize advice. If the question relates to a recent dise
       const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages }),
+        body: JSON.stringify({ model: "google/gemini-2.5-pro", messages, temperature: 0.3 }),
       });
       if (res.status === 429) return { ok: false as const, error: "Rate limit reached. Try again in a minute." };
       if (res.status === 402) return { ok: false as const, error: "AI credits exhausted." };

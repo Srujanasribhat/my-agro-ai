@@ -1,4 +1,18 @@
-export type Lang = "en" | "hi" | "ta" | "kn";
+export type Lang = "en" | "hi" | "ta" | "kn" | "te" | "mr" | "bn" | "gu" | "pa" | "ml" | "or";
+
+export const LANG_LABELS: Record<Lang, string> = {
+  en: "English",
+  hi: "हिन्दी",
+  ta: "தமிழ்",
+  kn: "ಕನ್ನಡ",
+  te: "తెలుగు",
+  mr: "मराठी",
+  bn: "বাংলা",
+  gu: "ગુજરાતી",
+  pa: "ਪੰਜਾਬੀ",
+  ml: "മലയാളം",
+  or: "ଓଡ଼ିଆ",
+};
 
 export const translations = {
   en: {
@@ -237,5 +251,8 @@ export function useT() {
   const [lang, setLangState] = useState<Lang>("en");
   useEffect(() => { setLangState(getLang()); }, []);
   const change = (l: Lang) => { setLang(l); setLangState(l); };
-  return { t: translations[lang], lang, setLang: change };
+  // Languages without a full UI translation fall back to English UI strings.
+  // The AI assistant still replies in the selected language.
+  const t = (translations as any)[lang] ?? translations.en;
+  return { t, lang, setLang: change };
 }

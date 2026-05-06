@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useT, type Lang } from "@/lib/i18n";
+import { useT, type Lang, LANG_LABELS } from "@/lib/i18n";
 
 export function SiteHeader() {
   const { t, lang, setLang } = useT();
@@ -44,11 +44,9 @@ export function SiteHeader() {
     };
   }, []);
 
-  const langs: { code: Lang; label: string }[] = [
-    { code: "en", label: "English" },
-    { code: "hi", label: "हिन्दी" },
-    { code: "ta", label: "தமிழ்" },
-  ];
+  const langs: { code: Lang; label: string }[] = (Object.keys(LANG_LABELS) as Lang[]).map(
+    (code) => ({ code, label: LANG_LABELS[code] })
+  );
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">

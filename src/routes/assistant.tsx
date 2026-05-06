@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { Send, Mic, MicOff, Trash2, Volume2, VolumeX, Bot, User as UserIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
-import { useT } from "@/lib/i18n";
+import { useT, type Lang } from "@/lib/i18n";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { askAssistant, clearChat } from "@/server/assistant.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +18,11 @@ export const Route = createFileRoute("/assistant")({
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
-const langCode = { en: "en-US", hi: "hi-IN", ta: "ta-IN", kn: "kn-IN" } as const;
+const langCode: Record<Lang, string> = {
+  en: "en-US", hi: "hi-IN", ta: "ta-IN", kn: "kn-IN",
+  te: "te-IN", mr: "mr-IN", bn: "bn-IN", gu: "gu-IN",
+  pa: "pa-IN", ml: "ml-IN", or: "or-IN",
+};
 
 function AssistantPage() {
   const { t, lang } = useT();
@@ -130,8 +136,12 @@ function AssistantPage() {
               {m.role === "assistant" && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Bot className="h-4 w-4" /></div>
               )}
-              <div className={`max-w-[80%] whitespace-pre-line rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
-                {m.content}
+              <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${m.role === "user" ? "bg-primary text-primary-foreground whitespace-pre-line" : "bg-secondary text-secondary-foreground [&_p]:my-1 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-semibold [&_code]:rounded [&_code]:bg-background/60 [&_code]:px-1"}`}>
+                {m.role === "assistant" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                ) : (
+                  m.content
+                )}
               </div>
               {m.role === "user" && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"><UserIcon className="h-4 w-4" /></div>
