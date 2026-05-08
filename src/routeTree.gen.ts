@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeatherRouteImport } from './routes/weather'
 import { Route as TipsRouteImport } from './routes/tips'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as DetectRouteImport } from './routes/detect'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -27,6 +28,11 @@ const WeatherRoute = WeatherRouteImport.update({
 const TipsRoute = TipsRouteImport.update({
   id: '/tips',
   path: '/tips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DetectRoute = DetectRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
+  '/market': typeof MarketRoute
   '/tips': typeof TipsRoute
   '/weather': typeof WeatherRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
+  '/market': typeof MarketRoute
   '/tips': typeof TipsRoute
   '/weather': typeof WeatherRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/detect': typeof DetectRoute
+  '/market': typeof MarketRoute
   '/tips': typeof TipsRoute
   '/weather': typeof WeatherRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/detect'
+    | '/market'
     | '/tips'
     | '/weather'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/detect'
+    | '/market'
     | '/tips'
     | '/weather'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/detect'
+    | '/market'
     | '/tips'
     | '/weather'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   DetectRoute: typeof DetectRoute
+  MarketRoute: typeof MarketRoute
   TipsRoute: typeof TipsRoute
   WeatherRoute: typeof WeatherRoute
 }
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/tips'
       fullPath: '/tips'
       preLoaderRoute: typeof TipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/detect': {
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   DetectRoute: DetectRoute,
+  MarketRoute: MarketRoute,
   TipsRoute: TipsRoute,
   WeatherRoute: WeatherRoute,
 }
