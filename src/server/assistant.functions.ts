@@ -79,7 +79,7 @@ Personalize using this context. If the question relates to a recent scan, refere
       const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: "google/gemini-2.5-pro", messages, temperature: 0.3 }),
+        body: JSON.stringify({ model: "google/gemini-2.5-flash", messages, temperature: 0.3 }),
       });
       if (res.status === 429) return { ok: false as const, error: "Rate limit reached. Try again in a minute." };
       if (res.status === 402) return { ok: false as const, error: "AI credits exhausted." };
