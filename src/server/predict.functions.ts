@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   imageDataUrl: z.string().min(50).max(8_000_000),
@@ -21,6 +22,7 @@ const langName: Record<string, string> = {
 };
 
 export const predictDisease = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
     const apiKey = process.env.LOVABLE_API_KEY;

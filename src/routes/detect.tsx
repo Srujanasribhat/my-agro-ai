@@ -98,6 +98,8 @@ function DetectPage() {
 
   const analyze = async () => {
     if (!imageDataUrl) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { toast.error("Please sign in to analyze leaves"); return; }
     setAnalyzing(true);
     try {
       const res = await predict({ data: { imageDataUrl, language: lang } });
