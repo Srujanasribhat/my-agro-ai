@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Leaf, Globe2, LogOut, Bell, MessageSquare, CloudRain, ShieldCheck, Menu } from "lucide-react";
+import { Leaf, Globe2, LogOut, Bell, MessageSquare, CloudRain, ShieldCheck, Menu, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -70,6 +70,9 @@ export function SiteHeader() {
           <Link to="/weather" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             {t.nav.weather}
           </Link>
+          <Link to="/market" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
+            Market
+          </Link>
           <Link to="/dashboard" className="text-sm font-medium text-muted-foreground transition hover:text-foreground" activeProps={{ className: "text-foreground" }}>
             {t.nav.dashboard}
           </Link>
@@ -102,6 +105,7 @@ export function SiteHeader() {
               <DropdownMenuItem asChild><Link to="/detect">{t.nav.detect}</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/assistant"><MessageSquare className="mr-2 h-4 w-4" />{t.nav.assistant}</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/weather"><CloudRain className="mr-2 h-4 w-4" />{t.nav.weather}</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild><Link to="/market"><TrendingUp className="mr-2 h-4 w-4" />Market</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/dashboard">{t.nav.dashboard}</Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link to="/tips">{t.nav.tips}</Link></DropdownMenuItem>
               {isAdmin && <><DropdownMenuSeparator /><DropdownMenuItem asChild><Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />{t.nav.admin}</Link></DropdownMenuItem></>}

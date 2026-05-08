@@ -44,6 +44,36 @@ export const askAssistant = createServerFn({ method: "POST" })
     const crops = (profile?.crops ?? []).join(", ") || "unknown";
     const location = profile?.location || "unknown";
 
+    // Pull KB rows that match user's crops or recent detections
+    const cropList = (profile?.crops ?? []).map((s: string) => s.toLowerCase());
+    const recentDiseases = (recent ?? []).map((r: any) => String(r.disease ?? "").toLowerCase()).filter(Boolean);
+    let kbText = "";
+    if (cropList.length > 0) {
+      const { data: kb } = await supabase
+        .from("crops_kb")
+        .select("crop, season, common_diseases, common_pests, notes")
+        .in("crop", profile?.crops ?? []);
+      if (kb && kb.length > 0) {
+        kbText = "\nCROP KB:\n" + kb.map((k: any) =>
+          `- ${k.crop} (${k.season ?? "?"}): diseases=${(k.common_diseases ?? []).join("/")}; pests=${(k.common_pests ?? []).join("/")}. ${k.notes ?? ""}`
+        ).join("\n");
+      }
+    }
+    if (recentDiseases.length > 0) {
+      const { data: chems } = await supabase
+        .from("agro_chemicals")
+        .select("name, active_ingredient, target, dose_per_litre, dose_per_acre, phi_days, safety_class")
+        .limit(40);
+      const matched = (chems ?? []).filter((c: any) =>
+        (c.target ?? []).some((t: string) => recentDiseases.some((d) => t.toLowerCase().includes(d) || d.includes(t.toLowerCase())))
+      ).slice(0, 6);
+      if (matched.length > 0) {
+        kbText += "\nRELEVANT CHEMICALS:\n" + matched.map((m: any) =>
+          `- ${m.name} (${m.active_ingredient}): ${m.dose_per_litre ?? ""} | ${m.dose_per_acre ?? ""} | PHI ${m.phi_days ?? "?"}d | ${m.safety_class ?? ""}`
+        ).join("\n");
+      }
+    }
+
     const replyLang = langName[data.language] ?? "English";
     const sys = `You are AgroAI — a senior agronomist and plant pathologist with 20+ years of field experience advising Indian farmers.
 
@@ -67,6 +97,7 @@ FARMER CONTEXT:
 - Crops grown: ${crops}
 - Location: ${location}
 - Recent leaf scans:\n${recentText}
+${kbText}
 
 Personalize using this context. If the question relates to a recent scan, reference that disease by name.`;
 
