@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      agro_chemicals: {
+        Row: {
+          active_ingredient: string
+          created_at: string
+          dose_per_acre: string | null
+          dose_per_litre: string | null
+          id: string
+          name: string
+          notes: string | null
+          phi_days: number | null
+          ppe: string | null
+          safety_class: string | null
+          target: string[] | null
+          type: string
+        }
+        Insert: {
+          active_ingredient: string
+          created_at?: string
+          dose_per_acre?: string | null
+          dose_per_litre?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phi_days?: number | null
+          ppe?: string | null
+          safety_class?: string | null
+          target?: string[] | null
+          type: string
+        }
+        Update: {
+          active_ingredient?: string
+          created_at?: string
+          dose_per_acre?: string | null
+          dose_per_litre?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phi_days?: number | null
+          ppe?: string | null
+          safety_class?: string | null
+          target?: string[] | null
+          type?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -35,6 +80,45 @@ export type Database = {
           id?: string
           role?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      crops_kb: {
+        Row: {
+          common_diseases: string[] | null
+          common_pests: string[] | null
+          created_at: string
+          crop: string
+          id: string
+          notes: string | null
+          scientific_name: string | null
+          season: string | null
+          soil: string | null
+          water_needs: string | null
+        }
+        Insert: {
+          common_diseases?: string[] | null
+          common_pests?: string[] | null
+          created_at?: string
+          crop: string
+          id?: string
+          notes?: string | null
+          scientific_name?: string | null
+          season?: string | null
+          soil?: string | null
+          water_needs?: string | null
+        }
+        Update: {
+          common_diseases?: string[] | null
+          common_pests?: string[] | null
+          created_at?: string
+          crop?: string
+          id?: string
+          notes?: string | null
+          scientific_name?: string | null
+          season?: string | null
+          soil?: string | null
+          water_needs?: string | null
         }
         Relationships: []
       }
@@ -80,6 +164,51 @@ export type Database = {
           severity?: string | null
           treatment?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      mandi_prices: {
+        Row: {
+          arrival_date: string
+          commodity: string
+          district: string | null
+          fetched_at: string
+          id: string
+          market: string
+          max_price: number | null
+          min_price: number | null
+          modal_price: number | null
+          state: string
+          unit: string | null
+          variety: string | null
+        }
+        Insert: {
+          arrival_date: string
+          commodity: string
+          district?: string | null
+          fetched_at?: string
+          id?: string
+          market: string
+          max_price?: number | null
+          min_price?: number | null
+          modal_price?: number | null
+          state: string
+          unit?: string | null
+          variety?: string | null
+        }
+        Update: {
+          arrival_date?: string
+          commodity?: string
+          district?: string | null
+          fetched_at?: string
+          id?: string
+          market?: string
+          max_price?: number | null
+          min_price?: number | null
+          modal_price?: number | null
+          state?: string
+          unit?: string | null
+          variety?: string | null
         }
         Relationships: []
       }
