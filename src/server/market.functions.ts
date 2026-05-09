@@ -56,6 +56,9 @@ export const refreshMandiPrices = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const apiKey = process.env.DATA_GOV_IN_API_KEY;
     if (!apiKey) return { ok: false as const, error: "Live data not configured" };
+    if (apiKey.length < 30) {
+      return { ok: false as const, error: "Invalid data.gov.in API key (too short). Please update DATA_GOV_IN_API_KEY with a valid key from https://data.gov.in/user/register" };
+    }
 
     const RESOURCE = "9ef84268-d588-465a-a308-a864a43d0070"; // daily mandi prices
     const params = new URLSearchParams({
@@ -63,15 +66,24 @@ export const refreshMandiPrices = createServerFn({ method: "POST" })
       format: "json",
       limit: String(data.limit),
     });
-    if (data.state) params.append("filters[state]", data.state);
-    if (data.commodity) params.append("filters[commodity]", data.commodity);
+    // data.gov.in filters are case-sensitive; capitalize first letter as a best effort.
+    const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    if (data.state) params.append("filters[state]", cap(data.state.trim()));
+    if (data.commodity) params.append("filters[commodity]", cap(data.commodity.trim()));
 
     try {
       const res = await fetch(`https://api.data.gov.in/resource/${RESOURCE}?${params.toString()}`);
-      if (!res.ok) return { ok: false as const, error: `Upstream ${res.status}` };
-      const json: any = await res.json();
+      const text = await res.text();
+      let json: any = {};
+      try { json = JSON.parse(text); } catch { /* non-json */ }
+      if (!res.ok) {
+        const msg = json?.error || text?.slice(0, 200) || `HTTP ${res.status}`;
+        return { ok: false as const, error: `data.gov.in: ${msg}` };
+      }
       const records: any[] = Array.isArray(json?.records) ? json.records : [];
-      if (records.length === 0) return { ok: true as const, inserted: 0 };
+      if (records.length === 0) {
+        return { ok: false as const, error: "No records returned. Check spelling of state/commodity (case-sensitive, e.g. 'Karnataka', 'Tomato'), or try without filters." };
+      }
 
       const parseDate = (s?: string) => {
         if (!s) return null;
